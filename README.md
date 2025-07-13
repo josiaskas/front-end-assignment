@@ -43,6 +43,13 @@ src/
 - **Symbol.js**: Symbol states and visual effects
 - **Paylines.js**: Win calculation across 7 payline patterns
 
+## 🎯 Features
+
+- 5x3 reel layout with responsive scaling
+- Asset preloader with progress tracking
+- Real-time win calculation
+- Configuration-driven game behavior
+
 ## 🛠️ Development
 
 ```bash
@@ -52,3 +59,5 @@ pnpm lint
 # Start dev server
 pnpm dev
 ```
+
+The game automatically scales to fit any screen size and uses PixiJS for hardware-accelerated rendering.
