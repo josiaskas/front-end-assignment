@@ -1,4 +1,4 @@
-import { Sprite, Texture, ColorMatrixFilter } from 'pixi.js'; 
+import { Sprite, Texture, ColorMatrixFilter } from 'pixi.js';
 
 // classe Symbol - encapsule un PIXI.Sprite avec identifiant et info de gain
 export default class Symbol {
@@ -70,7 +70,7 @@ export default class Symbol {
       this.setState('spinning');
       const startTime = performance.now();
 
-      const animate = (currentTime) => {
+      const animate = currentTime => {
         const progress = Math.min((currentTime - startTime) / duration, 1);
         this.sprite.rotation = progress * 2 * Math.PI; // rotation complète
         if (progress < 1) {
@@ -87,26 +87,26 @@ export default class Symbol {
 }
 
 export class SymbolFactory {
-    static setSymbolConfig(symbolConfig) {
-        this.symbolConfig = symbolConfig;
+  static setSymbolConfig(symbolConfig) {
+    this.symbolConfig = symbolConfig;
+  }
+  static create(symbolId, order) {
+    const config = this.symbolConfig[symbolId];
+    if (!config) {
+      console.error(`Texture ${symbolId} not found`);
+      return null;
     }
-    static create(symbolId, order) {
-        const config = this.symbolConfig[symbolId];
-        if (!config) {
-            console.error(`Texture ${symbolId} not found`);
-            return null;
-        }
-        return new Symbol(symbolId, config.textureKey, config.payout, order);
-    }
+    return new Symbol(symbolId, config.textureKey, config.payout, order);
+  }
 
-    static getSymbolConfig() {
-        return this.symbolConfig;
-    }
+  static getSymbolConfig() {
+    return this.symbolConfig;
+  }
 
-    static getSymbolPayout(key) {
-        return this.symbolConfig[key].payout;
-    }
-    static getSymbolPayoutNumber(key, count) {
-        return this.symbolConfig[key].payout[count] || 0;
-    }
+  static getSymbolPayout(key) {
+    return this.symbolConfig[key].payout;
+  }
+  static getSymbolPayoutNumber(key, count) {
+    return this.symbolConfig[key].payout[count] || 0;
+  }
 }

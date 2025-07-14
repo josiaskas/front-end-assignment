@@ -1,1 +1,1 @@
-export { default as Paylines } from './Paylines.js'; 
+export { default as Paylines } from './Paylines.js';

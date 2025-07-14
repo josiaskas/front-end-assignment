@@ -3,38 +3,38 @@ import Preloader from './core/Preloader.js';
 import Game from './core/Game.js';
 
 async function initGame(containerId) {
-    const app = new Application();
-    await app.init({
-        resizeTo: window,
-        background: 0xE6F3FF,
-        resolution: window.devicePixelRatio,
-        autoDensity: true,
-        clearBeforeRender: true,
+  const app = new Application();
+  await app.init({
+    resizeTo: window,
+    background: 0xe6f3ff,
+    resolution: window.devicePixelRatio,
+    autoDensity: true,
+    clearBeforeRender: true,
+  });
+
+  window.__PIXI_APP__ = app;
+  const pixiStage = document.querySelector(containerId);
+  if (!pixiStage) {
+    throw new Error(`Container with id ${containerId} not found`);
+  }
+
+  pixiStage.appendChild(app.canvas);
+
+  const preloader = new Preloader(app);
+
+  window.addEventListener('resize', () => {
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+    if (window.game) window.game.onResize();
+  });
+
+  preloader.start(loadedAssets => {
+    const game = new Game(app, loadedAssets);
+    window.game = game;
+    game.loadConfigs().then(() => {
+      game.initialize();
+      game.onResize();
     });
-
-    window.__PIXI_APP__ = app;
-    const pixiStage = document.querySelector(containerId);
-    if (!pixiStage) {
-        throw new Error(`Container with id ${containerId} not found`);
-    }
-
-    pixiStage.appendChild(app.canvas);
-
-    const preloader = new Preloader(app);
-
-    window.addEventListener('resize', () => {
-        app.renderer.resize(window.innerWidth, window.innerHeight);
-        if (window.game) window.game.onResize();
-    });
-
-    preloader.start((loadedAssets) => {
-        const game = new Game(app, loadedAssets);
-        window.game = game;
-        game.loadConfigs().then(() => {
-            game.initialize();
-            game.onResize();
-        });
-    });
+  });
 }
 
 initGame('#pixi-container');
