@@ -17,7 +17,7 @@ export default class Preloader {
     ];
   }
 
-  async start(onComplete) {
+  start(onComplete) {
     this.loaderText = new Text({
       text: '0%',
       style: {
@@ -35,30 +35,29 @@ export default class Preloader {
     );
     this.app.stage.addChild(this.loaderText);
 
-    try {
-      const bundle = {};
-      this.assetList.forEach(asset => {
-        bundle[asset.alias] = asset.src;
+    const bundle = {};
+    this.assetList.forEach(asset => {
+      bundle[asset.alias] = asset.src;
+    });
+
+    Assets.addBundle('game-assets', bundle);
+
+    Assets.loadBundle('game-assets', progress => {
+      const progressPercent = Math.round(progress * 100);
+      this.loaderText.text = `${progressPercent}%`;
+    })
+      .then(loadedAssets => {
+        this.app.stage.removeChild(this.loaderText);
+        this.loaderText = null;
+        onComplete(loadedAssets);
+      })
+      .catch(error => {
+        console.error('Loading error:', error);
+        if (this.loaderText) {
+          this.loaderText.text = 'Loading Error';
+          this.loaderText.style.fill = '#ff0000';
+        }
       });
-
-      Assets.addBundle('game-assets', bundle);
-
-      const loadedAssets = await Assets.loadBundle('game-assets', progress => {
-        const progressPercent = Math.round(progress * 100);
-        this.loaderText.text = `${progressPercent}%`;
-      });
-
-      this.app.stage.removeChild(this.loaderText);
-      this.loaderText = null;
-
-      onComplete(loadedAssets);
-    } catch (error) {
-      console.error('Loading error:', error);
-      if (this.loaderText) {
-        this.loaderText.text = 'Loading Error';
-        this.loaderText.style.fill = '#ff0000';
-      }
-    }
   }
 
   updatePosition() {
@@ -74,11 +73,9 @@ export default class Preloader {
     return Assets.get(alias);
   }
 
-  async unloadAll() {
-    try {
-      await Assets.unloadBundle('game-assets');
-    } catch (error) {
+  unloadAll() {
+    Assets.unloadBundle('game-assets').catch(error => {
       console.error('Error unloading assets:', error);
-    }
+    });
   }
 }

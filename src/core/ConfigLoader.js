@@ -1,7 +1,6 @@
 import reels from '../config/reels.json';
 import symbols from '../config/symbols.json';
 import paylines from '../config/paylines.json';
-import { Paylines } from '../paylines/index.js';
 
 export default class ConfigLoader {
   static validateReels(reels) {
@@ -113,23 +112,25 @@ export default class ConfigLoader {
     }
   }
 
-  static async loadConfig() {
-    try {
-      console.log('Loading slot machine configuration...');
+  static loadConfig() {
+    return new Promise((resolve, reject) => {
+      try {
+        console.log('Loading slot machine configuration...');
 
-      // validation de chaque section de configuration
-      this.validateReels(reels);
-      this.validateSymbols(symbols);
-      this.validatePaylines(paylines);
+        // validation de chaque section de configuration
+        this.validateReels(reels);
+        this.validateSymbols(symbols);
+        this.validatePaylines(paylines);
 
-      // validation croisée des références de symboles
-      this.validateSymbolReferences(reels, symbols);
+        // validation croisée des références de symboles
+        this.validateSymbolReferences(reels, symbols);
 
-      console.log('Configuration loaded and validated successfully');
-      return { reels, symbols, paylines };
-    } catch (error) {
-      console.error('Configuration loading failed:', error.message);
-      throw new Error(`Configuration error: ${error.message}`);
-    }
+        console.log('Configuration loaded and validated successfully');
+        resolve({ reels, symbols, paylines });
+      } catch (error) {
+        console.error('Configuration loading failed:', error.message);
+        reject(new Error(`Configuration error: ${error.message}`));
+      }
+    });
   }
 }

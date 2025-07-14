@@ -97,14 +97,14 @@ export default class Reel {
     return randomIndex;
   }
 
-  async spin(animate = true, duration = 1000) {
+  spin(animate = true, duration = 1000) {
     const newIndex = this.spinToRandom();
 
     if (animate) {
-      await this._animateVisibleSymbols(duration);
+      return this._animateVisibleSymbols(duration).then(() => newIndex);
     }
 
-    return newIndex;
+    return Promise.resolve(newIndex);
   }
 
   applyScale(scale) {

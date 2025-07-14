@@ -55,23 +55,24 @@ export default class Game {
     this.isSpinning = false;
   }
 
-  async loadConfigs() {
-    const { reels, symbols, paylines } = await ConfigLoader.loadConfig();
-    console.log(
-      `🎮 Slot machine loaded: ${reels.length} reels, ${Object.keys(symbols).length} symbols, ${paylines.length} paylines`
-    );
+  loadConfigs() {
+    return ConfigLoader.loadConfig().then(({ reels, symbols, paylines }) => {
+      console.log(
+        `🎮 Slot machine loaded: ${reels.length} reels, ${Object.keys(symbols).length} symbols, ${paylines.length} paylines`
+      );
 
-    SymbolFactory.setSymbolConfig(symbols);
-    this.reels = reels.map(
-      keys =>
-        new Reel(
-          keys,
-          this.app,
-          this.config.visibleCount,
-          this.config.symbolSpacing
-        )
-    );
-    this.paylines = new Paylines(paylines);
+      SymbolFactory.setSymbolConfig(symbols);
+      this.reels = reels.map(
+        keys =>
+          new Reel(
+            keys,
+            this.app,
+            this.config.visibleCount,
+            this.config.symbolSpacing
+          )
+      );
+      this.paylines = new Paylines(paylines);
+    });
   }
 
   initialize() {
@@ -106,7 +107,6 @@ export default class Game {
     const slotContainerWidth =
       5 * (this.config.symbolSize + this.config.symbolSpacing) -
       this.config.symbolSpacing;
-    const pad = this.config.mainPadding;
 
     // positionnement du conteneur de slot au centre
     this.slotContainer.pivot.set(
@@ -134,25 +134,26 @@ export default class Game {
     this.textContainer.position.set(this.config.baseWidth / 5, textY);
   }
 
-  async spin() {
+  spin() {
     if (this.isSpinning) return;
 
     console.log('🎰 Spinning...');
     this.isSpinning = true;
     this.ui.setSpinButtonInteractive(false);
 
-    try {
-      const spinPromises = this.reels.map((reel, index) => reel.spin(false));
-      const results = await Promise.all(spinPromises);
-      console.log(`🎯 Positions: ${results.join(', ')}`);
-
-      this.calculateWinnings();
-    } catch (error) {
-      console.error('❌ Spin error:', error);
-    } finally {
-      this.isSpinning = false;
-      this.ui.setSpinButtonInteractive(true);
-    }
+    const spinPromises = this.reels.map(reel => reel.spin(false));
+    Promise.all(spinPromises)
+      .then(results => {
+        console.log(`🎯 Positions: ${results.join(', ')}`);
+        this.calculateWinnings();
+      })
+      .catch(error => {
+        console.error('❌ Spin error:', error);
+      })
+      .finally(() => {
+        this.isSpinning = false;
+        this.ui.setSpinButtonInteractive(true);
+      });
   }
 
   calculateWinnings() {
