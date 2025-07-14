@@ -17,7 +17,7 @@ export default class Preloader {
     ];
   }
 
-  start(onComplete) {
+  async start(onComplete) {
     this.loaderText = new Text({
       text: '0%',
       style: {
